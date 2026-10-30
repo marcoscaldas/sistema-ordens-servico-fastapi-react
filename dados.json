@@ -1,0 +1,24 @@
+[
+  {
+  "cliente": "Marcos Silva",
+  "equipamento": "Notebook Dell",
+  "descricao": "Notebook não liga após atualização",
+  "prioridade": "alta"
+  },
+  {
+    "cliente": "Ana Oliveira",
+    "equipamento": "Impressora Epson",
+    "descricao": "Impressora não está puxando papel",
+    "prioridade": "media"
+  },
+  {
+    "cliente": "Carlos Souza",
+    "equipamento": "Computador Desktop",
+    "descricao": "Computador apresenta lentidão na inicialização",
+    "prioridade": "baixa"
+  },
+
+  {
+    "status": "em_andamento"
+  }
+]
