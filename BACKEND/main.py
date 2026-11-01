@@ -1,8 +1,19 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from conexao import conectar
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Ordens de Serviço")
+
+app.add_middleware(
+
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
+)
+
 
 class Ordem(BaseModel):
     cliente: str
