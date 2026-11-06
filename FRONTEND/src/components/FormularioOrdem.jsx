@@ -17,7 +17,9 @@ export default function FormularioOrdem({ onCadastrar }) {
     setSalvando(true);
     try {
       const sucesso = await onCadastrar(form);
+      
       if (sucesso) setForm(inicial);
+
     } finally {
       setSalvando(false);
     }

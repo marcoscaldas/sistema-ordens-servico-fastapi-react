@@ -37,7 +37,9 @@ export default function App(){
 
             setTimeout(() => {
                 setMensagem("")
-            }, 2000);
+            }, 2000);   
+            
+            return true
             
         } catch (erro) {
             setMensagem(erro.message)

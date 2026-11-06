@@ -24,6 +24,42 @@ class Ordem(BaseModel):
 class AtualizacaoStatus(BaseModel):
     status: str
 
+class EdicaoOrdem(Ordem):
+    status: str= "aberta"
+
+@app.put("/ordens/{id}")
+def editar_ordem(id: int, dados: EdicaoOrdem):
+    if dados.status not in {"aberta", "em_andamento", "concluida", "cancelada"}:
+        raise HTTPException(status_code=400, detail="Status inválido")
+    
+    if dados.prioridade not in {"baixa", "media", "alta"}:
+        raise HTTPException(status_code=400, detail="Prioridade inválida")
+    
+    if not all([dados.cliente.strip(), dados.equipamento.strip(), dados.descricao.strip()]):
+        raise HTTPException(status_code=400, detail="Preencha todos os campos")
+    
+    conexao = conectar()
+    try:
+        with conexao.cursor() as cursor:
+            cursor.execute("SELECT id FROM ordens_servico WHERE id = %s", (id,))
+            if cursor.fetchone() is None:
+
+                raise HTTPException(status_code=404, detail="Ordem não encontrada")
+            
+            cursor.execute(
+                """UPDATE ordens_servico
+                SET cliente = %s, equipamento = %s, descricao = %s,
+                        prioridade = %s, status = %s 
+                WHERE id = %s""",
+
+                (dados.cliente.strip(), dados.equipamento.strip(), dados.descricao.strip(),
+                 dados.prioridade.strip(), dados.status, id),
+            )            
+        conexao.commit()
+        return {"mensagem": "Ordem atualizada"}        
+    finally:
+        conexao.close()
+    
 
 @app.post("/ordens", status_code=201)
 def cadastrar(ordem: Ordem):
@@ -60,7 +96,7 @@ def consultar(id: int):
     conexao = conectar()
     try:
         with conexao.cursor() as cursor:
-            cursor.execute("SELECT * FROM ordens_servico WHERE id = %s",(id,))
+            cursor.execute("SELECT * FROM ordens_servico WHERE id = %s",(id))
             ordem = cursor.fetchone()
         if ordem is None:
             raise HTTPException(status_code=404, detail="Ordem não encontrada")
@@ -89,12 +125,13 @@ def alterar_status(id: int, dados: AtualizacaoStatus):
     finally:
         conexao.close()
 
+
 @app.delete("/ordens/{id}")
 def excluir(id: int):
     conexao = conectar()
     try:
-        with conexao.cursor() as cursor:
-            cursor.execute("DELETE FROM ordens_servico WHERE id = %s",(id),) 
+        with conexao.cursor() as cursor:                    
+            cursor.execute("DELETE FROM ordens_servico WHERE id = %s",(id,)) 
             excluidas = cursor.rowcount
         conexao.commit()
         if excluidas ==0:
